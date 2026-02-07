@@ -13,6 +13,15 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+require 'includes/plugin-update-checker/plugin-update-checker.php';
+use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
+
+$myUpdateChecker = PucFactory::buildUpdateChecker(
+	'https://github.com/agskanchana-sam/custom-font',
+	__FILE__,
+	'use-custom-font'
+);
+
 define( 'UCF_VERSION', '1.0.0' );
 define( 'UCF_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'UCF_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
