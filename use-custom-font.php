@@ -3,8 +3,8 @@
  * Plugin Name: Use Custom Font
  * Plugin URI:  https://example.com/use-custom-font
  * Description: Upload .woff2 font files and apply them to your site's frontend elements.
- * Version:     1.0.0
- * Author:      Developer
+ * Version:     1.0.1
+ * Author:      Sam
  * License:     GPL-2.0+
  * Text Domain: use-custom-font
  */
@@ -52,6 +52,11 @@ function ucf_activate() {
     // Default option: element → font assignment map.
     if ( false === get_option( 'ucf_font_assignments' ) ) {
         add_option( 'ucf_font_assignments', array() );
+    }
+
+    // Default option: force HTTPS (auto-detect based on site protocol).
+    if ( false === get_option( 'ucf_force_https' ) ) {
+        add_option( 'ucf_force_https', is_ssl() );
     }
 }
 register_activation_hook( __FILE__, 'ucf_activate' );

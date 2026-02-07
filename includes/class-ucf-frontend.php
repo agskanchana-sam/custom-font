@@ -36,9 +36,10 @@ class UCF_Frontend {
 
         // 1. @font-face declarations.
         foreach ( $fonts as $f ) {
+            $font_url = $this->maybe_force_https( $f->file_url );
             $css .= "@font-face {\n";
             $css .= "  font-family: '{$f->font_name}';\n";
-            $css .= "  src: url('" . esc_url( $f->file_url ) . "') format('woff2');\n";
+            $css .= "  src: url('" . esc_url( $font_url ) . "') format('woff2');\n";
             $css .= "  font-weight: {$f->font_weight};\n";
             $css .= "  font-style: {$f->font_style};\n";
             $css .= "  font-display: swap;\n";
@@ -87,6 +88,16 @@ class UCF_Frontend {
         $css .= "</style>\n";
 
         echo $css; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+    }
+
+    /**
+     * Force HTTPS in font URL if the option is enabled.
+     */
+    private function maybe_force_https( $url ) {
+        if ( get_option( 'ucf_force_https' ) && strpos( $url, 'http://' ) === 0 ) {
+            $url = 'https://' . substr( $url, 7 );
+        }
+        return $url;
     }
 }
 

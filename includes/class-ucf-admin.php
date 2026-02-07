@@ -148,7 +148,7 @@ class UCF_Admin {
                                     <style>
                                         @font-face {
                                             font-family: '<?php echo esc_attr( 'ucf-preview-' . $font->id ); ?>';
-                                            src: url('<?php echo esc_url( $font->file_url ); ?>') format('woff2');
+                                            src: url('<?php echo esc_url( $this->maybe_force_https( $font->file_url ) ); ?>') format('woff2');
                                             font-weight: <?php echo esc_attr( $font->font_weight ); ?>;
                                             font-style: <?php echo esc_attr( $font->font_style ); ?>;
                                         }
@@ -186,6 +186,22 @@ class UCF_Admin {
                     <?php wp_nonce_field( 'ucf_save_assignments', 'ucf_nonce' ); ?>
                     <input type="hidden" name="action" value="ucf_save_assignments">
 
+                    <table class="form-table">
+                        <tr>
+                            <th><?php esc_html_e( 'Force HTTPS', 'use-custom-font' ); ?></th>
+                            <td>
+                                <label>
+                                    <input type="checkbox" name="ucf_force_https" value="1" <?php checked( get_option( 'ucf_force_https' ), true ); ?>>
+                                    <?php esc_html_e( 'Force HTTPS for all font URLs (recommended for SSL sites)', 'use-custom-font' ); ?>
+                                </label>
+                                <p class="description"><?php esc_html_e( 'This prevents mixed content errors on HTTPS sites by ensuring font URLs always use HTTPS.', 'use-custom-font' ); ?></p>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <hr style="margin: 20px 0;">
+
+                    <h3><?php esc_html_e( 'Element Assignments', 'use-custom-font' ); ?></h3>
                     <table class="form-table">
                         <?php
                         $elements = array(
@@ -340,12 +356,27 @@ class UCF_Admin {
         }
 
         update_option( 'ucf_font_assignments', $clean );
+
+        // Save Force HTTPS option.
+        $force_https = isset( $_POST['ucf_force_https'] ) && '1' === $_POST['ucf_force_https'];
+        update_option( 'ucf_force_https', $force_https );
+
         $this->redirect_with_notice( 'success', __( 'Font assignments saved.', 'use-custom-font' ) );
     }
 
     /* ------------------------------------------------------------------ */
     /*  Helpers                                                            */
     /* ------------------------------------------------------------------ */
+    /**
+     * Force HTTPS in font URL if the option is enabled.
+     */
+    private function maybe_force_https( $url ) {
+        if ( get_option( 'ucf_force_https' ) && strpos( $url, 'http://' ) === 0 ) {
+            $url = 'https://' . substr( $url, 7 );
+        }
+        return $url;
+    }
+
     private function redirect_with_notice( $type, $message ) {
         set_transient( 'ucf_admin_notice', array( 'type' => $type, 'message' => $message ), 30 );
         wp_safe_redirect( admin_url( 'admin.php?page=ucf-custom-fonts' ) );
